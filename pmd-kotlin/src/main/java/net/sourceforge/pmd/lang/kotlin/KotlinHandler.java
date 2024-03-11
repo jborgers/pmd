@@ -17,7 +17,8 @@ public class KotlinHandler extends AbstractPmdLanguageVersionHandler {
 
     private static final XPathHandler XPATH_HANDLER =
         XPathHandler.getHandlerForFunctionDefs(
-            BaseContextNodeTestFun.HAS_CHILDREN
+            BaseContextNodeTestFun.HAS_CHILDREN,
+            BaseContextNodeTestFun.HAS_IMPORT
         );
 
     public KotlinHandler(String release) {
