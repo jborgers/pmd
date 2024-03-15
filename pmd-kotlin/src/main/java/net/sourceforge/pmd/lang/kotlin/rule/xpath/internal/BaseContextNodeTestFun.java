@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.function.BiPredicate;
 
 /**
- * XPath function {@code pmd-kotlin:hasChildren(count as xs:decimal) as xs:boolean}
+ * XPath function {@code pmd-kotlin:hasChildren(count as xs:decimal) as xs:boolean} and
+ * {@code pmd-kotlin:hasImport(package as xs:string) as xs:boolean}
  *
  * <p>Example XPath 3.1: {@code //Identifier[pmd-kotlin:hasChildren(3)]}
  *
@@ -37,8 +38,8 @@ public class BaseContextNodeTestFun<T extends KotlinNode> extends BaseKotlinXPat
     private final Class<T> klass;
     private final BiPredicate<String, T> checker;
 
-    public static final BaseKotlinXPathFunction HAS_CHILDREN = new BaseContextNodeTestFun<>(KotlinNode.class, "hasChildren", TestUtil::hasChildren);
-    public static final BaseKotlinXPathFunction HAS_IMPORT = new BaseContextNodeTestFun<>(KotlinNode.class, "hasImport", TestUtil::hasImport);
+    public static final BaseKotlinXPathFunction HAS_CHILDREN = new BaseContextNodeTestFun<>(KotlinNode.class, "hasChildren", TestFunUtil::hasChildren);
+    public static final BaseKotlinXPathFunction HAS_IMPORT = new BaseContextNodeTestFun<>(KotlinNode.class, "hasImport", TestFunUtil::hasImport);
 
     protected BaseContextNodeTestFun(Class<T> klass, String localName, BiPredicate<String, T> checker) {
         super(localName);
@@ -74,8 +75,8 @@ public class BaseContextNodeTestFun<T extends KotlinNode> extends BaseKotlinXPat
 
 }
 
-class TestUtil {
-    private TestUtil() {
+class TestFunUtil {
+    private TestFunUtil() {
         // utility class
     }
 
