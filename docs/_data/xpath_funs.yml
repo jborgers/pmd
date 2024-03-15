@@ -187,3 +187,17 @@ langs:
         examples:
           - code: '//Identifier[pmd-kotlin:hasChildren(3)]'
             outcome: "true or false"
+
+      - name: hasImport
+        returnType: "xs:boolean"
+        shortDescription: "Test for an import header"
+        description: "Returns true if the document has the specified package in the import header"
+        parameters:
+          - name: "package"
+            type: "xs:string"
+            description: "The fully qualified package name"
+        examples:
+          - code: '/KotlinFile[pmd-kotlin:hasImport('javax.xml.xpath')]'
+            outcome: "true or false"
+          - code: '//FunctionBody//T-Identifier[@Text='newXPath' and pmd-kotlin:hasImport('javax.xml.xpath')]'
+            outcome: "true or false"
