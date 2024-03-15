@@ -6,8 +6,11 @@ package net.sourceforge.pmd.lang.kotlin.rule.xpath.internal;
 
 import net.sourceforge.pmd.lang.ast.Node;
 import net.sourceforge.pmd.lang.kotlin.ast.KotlinNode;
-import net.sourceforge.pmd.lang.kotlin.ast.KotlinParser;
 import net.sourceforge.pmd.lang.rule.xpath.internal.AstElementNode;
+
+import static net.sourceforge.pmd.lang.kotlin.ast.KotlinParser.KtImportHeader;
+import static net.sourceforge.pmd.lang.kotlin.ast.KotlinParser.KtImportList;
+import static net.sourceforge.pmd.lang.kotlin.ast.KotlinParser.KtSimpleIdentifier;
 
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.lib.ExtensionFunctionCall;
@@ -82,69 +85,37 @@ class TestUtil {
         Node root = node.getRoot();
         int numChildren = root.getNumChildren();
         for (int i = 0; i < numChildren; i++) {
-            if (root.getChild(i) instanceof KotlinParser.KtImportList) {
-                aHeaderHasImport = headerHasImport(reqPackage, (KotlinParser.KtImportList)node);
+            Node child = root.getChild(i);
+            if (child instanceof KtImportList) {
+                aHeaderHasImport = headerHasImport(reqPackage, (KtImportList)child);
+                break;
             }
         }
         return aHeaderHasImport;
     }
 
-    private static boolean headerHasImport(final @NonNull String reqPackage, final KotlinParser.KtImportList node) {
+    private static boolean headerHasImport(final @NonNull String reqPackage, final @NonNull KtImportList node) {
         int numChildren = node.getNumChildren();
         for (int i = 0; i < numChildren; i++) {
-            if (node.getChild(i) instanceof KotlinParser.KtImportHeader) {
-                List<KotlinParser.KtSimpleIdentifier> simpleIdentifiers = ((KotlinParser.KtImportHeader) node.getChild(i)).identifier().simpleIdentifier(); // multiple
-                List<String> importParts = new ArrayList<>();
-                for (KotlinParser.KtSimpleIdentifier smplIdentifier: simpleIdentifiers) {
-                    importParts.add(smplIdentifier.Identifier().getText()); // In designer called T-Identifier
-                }
-                String importJoined = String.join(".", importParts);
+            KotlinNode child = node.getChild(i);
+            if (child instanceof KtImportHeader) {
+                List<KtSimpleIdentifier> simpleIdentifiers = ((KtImportHeader) child).identifier().simpleIdentifier(); // multiple
+                String importJoined = joinIdentifiersText(".", simpleIdentifiers);
                 if (importJoined.contains(reqPackage)) return true;
             }
         }
         return false;
     }
 
+    private static String joinIdentifiersText(String delimiter, List<KtSimpleIdentifier> simpleIdentifiers) {
+        List<String> parts = new ArrayList<>();
+        for (KtSimpleIdentifier smplIdentifier: simpleIdentifiers) {
+            parts.add(smplIdentifier.Identifier().getText()); // In designer called T-Identifier
+        }
+        return String.join(delimiter, parts);
+    }
+
     public static boolean hasChildren(final @NonNull String reqNumChildren, final @NonNull Node node) {
         return node.getNumChildren() == Integer.parseInt(reqNumChildren);
     }
-
-    /**
-     * Checks whether the static type of the node is a subtype of the
-     * class identified by the given name. This ignores type arguments,
-     * if the type of the node is parameterized. Examples:
-     *
-     * <pre>{@code
-     * isA(List.class, <new ArrayList<String>()>)      = true
-     * isA(ArrayList.class, <new ArrayList<String>()>) = true
-     * isA(int[].class, <new int[0]>)                  = true
-     * isA(Object[].class, <new String[0]>)            = true
-     * isA(_, null) = false
-     * isA(null, _) = NullPointerException
-     * }</pre>
-     *
-     * <p>If either type is unresolved, the types are tested for equality,
-     * thus giving more useful results than {@link JTypeMirror#isSubtypeOf(JTypeMirror)}.
-     *
-     * <p>Note that primitives are NOT considered subtypes of one another
-     * by this method, even though {@link JTypeMirror#isSubtypeOf(JTypeMirror)} does.
-     *
-     * @param clazz a class (non-null)
-     * @param node  the type node to check
-     *
-     * @return true if the type test matches
-     *
-     * @throws NullPointerException if the class parameter is null
-     * TODO
-     */
-    /*public static boolean isA(final @NonNull Class<?> clazz, final @Nullable TypeNode node) {
-        AssertionUtil.requireParamNotNull("class", clazz);
-        if (node == null) {
-            return false;
-        }
-
-        return hasNoSubtypes(clazz) ? isExactlyA(clazz, node)
-                : isA(clazz, node.getTypeMirror());
-    }*/
-
 }
